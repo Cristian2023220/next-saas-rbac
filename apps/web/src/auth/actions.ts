@@ -69,6 +69,7 @@ export async function selectOrganization(orgSlug: string) {
     path: '/',
     maxAge: 60 * 60 * 24 * 30, // 30 dias
     sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
   })
 
   redirect(`/org/${orgSlug}`)
