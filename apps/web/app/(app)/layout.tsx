@@ -15,7 +15,7 @@ export default async function AppLayout({
   return (
     <div className='py-4'>
       <Header />
-      <main>{children}</main>
+      <main className='mx-auto w-full max-w-[1200px]'>{children}</main>
     </div>
   )
 }
