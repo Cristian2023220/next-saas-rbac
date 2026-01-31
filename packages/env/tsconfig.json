@@ -1,0 +1,12 @@
+{
+  "extends": "@saas/tsconfig/node.json",
+  "include": ["index.ts"],
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
