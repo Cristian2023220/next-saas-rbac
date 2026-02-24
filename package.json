@@ -13,5 +13,11 @@
   "packageManager": "pnpm@9.0.0",
   "engines": {
     "node": ">=18"
+  },
+  "pnpm": {
+    "overrides": {
+      "@radix-ui/react-context": "1.1.1",
+      "@radix-ui/react-dialog": "1.1.2"
+    }
   }
 }

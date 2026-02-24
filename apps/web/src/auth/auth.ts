@@ -22,9 +22,15 @@ export async function getCurrentMembership() {
     return null
   }
 
-  const { membership } = await getMembership(org)
-
-  return membership
+  try {
+    // Tentamos buscar a membership na API
+    const { membership } = await getMembership(org)
+    return membership
+  } catch {
+    // Se a API retornar um erro de permissão ou token (como o 401 Unauthorized),
+    // redirecionamos para a rota de sign-out para limpar os cookies antigos e invalidar a sessão
+    redirect('/api/auth/sign-out')
+  }
 }
 
 export async function ability() {
@@ -53,7 +59,7 @@ export async function auth() {
   try {
     const { user } = await getProfile()
     return { user }
-  } catch {}
-
-  return redirect('/api/auth/sign-out')
+  } catch {
+    return redirect('/api/auth/sign-out')
+  }
 }

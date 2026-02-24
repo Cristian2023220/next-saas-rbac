@@ -1,67 +1,55 @@
-import type { FastifyInstance } from 'fastify'
-import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import { UserSchema, organizationSchema, defineAbilityFor } from '@saas/auth'
+import { organizationSchema } from '@saas/auth'
+import { FastifyInstance } from 'fastify'
+import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
-import { auth } from '../../middlewares/auth'
-import { prisma } from '../../../lib/prisma'
-import { BadRequestError } from '../_errors/bad-request-error'
+
 import { UnauthorizedError } from '../_errors/unauthorized-error'
+import { auth } from '../../middlewares/auth'
+import { getUserPermissions } from '../../../utils/get-users-permissions'
+import { prisma } from '../../../lib/prisma'
 
 export async function shutdownOrganization(app: FastifyInstance) {
-  app.register(auth)
-
-  app.withTypeProvider<ZodTypeProvider>().delete(
-    '/organizations/:slug',
-    {
-      schema: {
-        tags: ['Organizations'],
-        summary: 'Shutdown Organization',
-        security: [{ bearerAuth: [] }],
-        params: z.object({
-          slug: z.string(),
-        }),
-        response: {
-          204: z.null(),
+  app
+    .withTypeProvider<ZodTypeProvider>()
+    .register(auth)
+    .delete(
+      '/organization/:slug',
+      {
+        schema: {
+          tags: ['Organizations'],
+          summary: 'Shutdown organization.',
+          security: [{ bearerAuth: [] }],
+          params: z.object({
+            slug: z.string(),
+          }),
+          response: {
+            204: z.null(),
+          },
         },
       },
-    },
-    async (request, reply) => {
-      const { slug } = request.params
+      async (request, reply) => {
+        const { slug } = request.params
+        const userId = await request.getCurrentUserId()
+        const { membership, organization } =
+          await request.getUserMembership(slug)
 
-      // 1. Busca a membership e a organização pelo slug
-      const { membership, organization } = await request.getUserMembership(slug)
-      
+        const authOrganization = organizationSchema.parse(organization)
 
-      const userId = await request.getCurrentUserId()
+        const { cannot } = getUserPermissions(userId, membership.role)
 
-      // 2. Validação de Permissões (CASL)
-      
-      // Criamos a representação do usuário para o CASL
-      const authUser = UserSchema.parse({
-        id: userId,
-        role: membership.role,
-      })
+        if (cannot('update', authOrganization)) {
+          throw new UnauthorizedError(
+            `You're not allowed to shutdown this organization.`,
+          )
+        }
 
-      // Criamos a representação da organização para o CASL
-      const authOrganization = organizationSchema.parse(organization)
+        await prisma.organization.delete({
+          where: {
+            id: organization.id,
+          },
+        })
 
-      // Geramos as permissões baseadas no usuário
-      const { cannot } = defineAbilityFor(authUser)
-
-      // Verificamos se ele PODE atualizar ESSA organização específica
-      if (cannot('delete', authOrganization)) {
-        throw new UnauthorizedError("You're not allowed to shutdown this organization")
-      }
-
-      
-      // 4. Atualização no banco
-      await prisma.organization.delete({
-        where: {
-          id: organization.id,
-        },
-      })
-
-      return reply.status(204).send()
-    },
-  )
+        return reply.status(204).send()
+      },
+    )
 }

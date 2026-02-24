@@ -24,19 +24,22 @@ export function useFormState(
         const form = event.currentTarget
         const data = new FormData(form)
 
-        startTransition(async () => {
-            const state = await action(data)
+        // Run the action (network/server) first, outside the transition
+        const state = await action(data)
 
+        // Then perform UI updates inside a synchronous transition callback
+        startTransition(() => {
             if (state.success) {
-                requestFormReset(form) 
-                
-                if (onSuccess) {
-                    await onSuccess()
-                }
+                requestFormReset(form)
             }
 
             setFormState(state)
         })
+
+        // Run optional onSuccess after the transition
+        if (state.success && onSuccess) {
+            await onSuccess()
+        }
     }
 
     return [formState, handleSubmit, isPending] as const

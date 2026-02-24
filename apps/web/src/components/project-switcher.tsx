@@ -23,13 +23,17 @@ export function ProjectSwitcher() {
   const { slug: orgSlug, project: projectSlug } = useParams<{
     slug: string
     project: string
-  }>()
+  }>()!
 
   const { data, isLoading } = useQuery({
     queryKey: [orgSlug, 'projects'],
     queryFn: () => getProjects(orgSlug),
     enabled: !!orgSlug,
   })
+
+  if (!orgSlug) {
+    return null
+  }
 
   console.log(data)
 

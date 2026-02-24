@@ -2,8 +2,8 @@
   "extends": "@saas/tsconfig/node.json",
   "include": ["index.ts"],
   "compilerOptions": {
-    "module": "esnext",
-    "moduleResolution": "bundler",
+    "module": "Node16",
+    "moduleResolution": "Node16",
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

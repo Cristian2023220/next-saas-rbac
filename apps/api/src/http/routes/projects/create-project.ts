@@ -42,9 +42,10 @@ export async function createProject(app: FastifyInstance) {
         const { organization, membership } =
           await request.getUserMembership(slug)
 
-        const { cannot } = getUserPermissions(userId, membership.role)
+        const ability = getUserPermissions(userId, membership.role)
 
-        if (cannot('create', 'Project')) {
+        // Se o usuário NÃO PODE criar o projeto, disparamos o erro:
+        if (!ability.can('create', 'Project')) {
           throw new UnauthorizedError(
             `You're not allowed to create a new project.`,
           )

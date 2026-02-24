@@ -1,15 +1,18 @@
-import type { Metadata } from "next";
-import './globals.css'
 import { Providers } from '@/components/providers'
+import './globals.css'
+
+import type { Metadata } from 'next'
+
+
 
 export const metadata: Metadata = {
-  title: "Create Next App",
-};
+  title: 'Create Next App',
+}
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -17,5 +20,5 @@ export default async function RootLayout({
         <Providers>{children}</Providers>
       </body>
     </html>
-  );
+  )
 }

@@ -19,6 +19,7 @@ import { signInWithEmailAndPassword } from '@/auth/actions'
 export function SignInForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const prefilledEmail = searchParams?.get('email') ?? ''
 
   const onSuccess = () => {
     router.push('/')
@@ -48,7 +49,7 @@ export function SignInForm() {
             name="email"
             type="email"
             id="email"
-            defaultValue={searchParams.get('email') ?? ''}
+            defaultValue={prefilledEmail}
           />
           {errors?.email && (
             <p className="text-xs font-medium text-red-500 dark:text-red-400">
