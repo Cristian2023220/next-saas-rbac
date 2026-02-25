@@ -1,9 +1,11 @@
+import type React from 'react'
 import { ability } from '@/auth/auth'
 
 import { Invites } from './invites'
 import { MemberList } from './member-list'
 
-export default async function MembersPage() {
+
+export default async function MembersPage(): Promise<React.JSX.Element> {
   const permissions = await ability()
 
   return (

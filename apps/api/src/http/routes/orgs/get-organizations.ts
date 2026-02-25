@@ -15,7 +15,6 @@ export async function getOrganizations(app: FastifyInstance) {
         tags: ['Organizations'],
         summary: 'Get organizations where user is a member',
         security: [{ bearerAuth: [] }],
-        // Params removido pois é uma listagem geral, não detalhe de uma específica
         response: {
           200: z.object({
             organizations: z.array(
@@ -44,7 +43,6 @@ export async function getOrganizations(app: FastifyInstance) {
             select: {
               role: true,
             },
-            // IMPORTANTE: Filtrar para pegar apenas o cargo DO USUÁRIO ATUAL
             where: {
               userId,
             },

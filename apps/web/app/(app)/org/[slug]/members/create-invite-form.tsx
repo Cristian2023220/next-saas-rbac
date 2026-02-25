@@ -1,5 +1,6 @@
 'use client'
 
+import type React from 'react'
 import { AlertTriangle, Loader2, UserPlus } from 'lucide-react'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -16,7 +17,8 @@ import { useFormState } from '@/hooks/use-form-state'
 
 import { createInviteAction } from './actions'
 
-export function CreateInviteForm() {
+// Adicionamos a anotação de tipo React.JSX.Element aqui
+export function CreateInviteForm(): React.JSX.Element {
   const [{ errors, message, success }, handleSubmit, isPending] =
     useFormState(createInviteAction)
 

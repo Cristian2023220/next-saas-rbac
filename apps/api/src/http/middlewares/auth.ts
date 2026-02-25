@@ -36,7 +36,8 @@ export const auth = fastifyPlugin(async (app: FastifyInstance) => {
 
       return {
         organization,
-        membership
+        membership,
+        
       }
     }
   })

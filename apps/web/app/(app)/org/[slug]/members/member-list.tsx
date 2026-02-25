@@ -1,3 +1,4 @@
+import type React from 'react' // 👈 Adicione isso no topo para garantir o namespace JSX
 import { organizationSchema } from '@saas/auth'
 import { ArrowLeftRight, Crown, UserMinus } from 'lucide-react'
 import Image from 'next/image'
@@ -14,7 +15,8 @@ import { removeMemberAction } from './actions'
 import { UpdateMemberRoleSelect } from './update-member-role-select'
 import { getMembers } from '@/http/get-members'
 
-export async function MemberList() {
+// 👇 Adicionamos o Promise<React.JSX.Element> aqui!
+export async function MemberList(): Promise<React.JSX.Element> {
   const currentOrg = await getCurrentOrg()
   const permissions = await ability()
 
@@ -24,7 +26,10 @@ export async function MemberList() {
     getOrganization(currentOrg!),
   ])
 
-  const authOrganization = organizationSchema.parse(organization)
+  const authOrganization = organizationSchema.parse({
+    id: organization.id,
+    owner_id: organization.ownerId,
+  })
 
   return (
     <div className="space-y-2">
