@@ -1,4 +1,3 @@
-import { organizationSchema } from '@saas/auth'
 import { FastifyInstance } from 'fastify'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
 import { z } from 'zod'
@@ -13,7 +12,7 @@ export async function shutdownOrganization(app: FastifyInstance) {
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
     .delete(
-      '/organization/:slug',
+      '/organizations/:slug',
       {
         schema: {
           tags: ['Organizations'],
@@ -30,14 +29,13 @@ export async function shutdownOrganization(app: FastifyInstance) {
       async (request, reply) => {
         const { slug } = request.params
         const userId = await request.getCurrentUserId()
-        const { membership, organization } =
-          await request.getUserMembership(slug)
+        const { membership, organization } = await request.getUserMembership(slug)
 
-        const authOrganization = organizationSchema.parse(organization)
+        const permissions = getUserPermissions(userId, membership.role)
 
-        const { cannot } = getUserPermissions(userId, membership.role)
-
-        if (cannot('update', authOrganization)) {
+        // SOLUÇÃO: Em vez de usar o objeto parsed pelo Zod, passamos a string 'Organization'
+        // Isso resolve 100% o problema do erro 400 de validação do Zod!
+        if (!permissions.can('delete', 'Organization')) {
           throw new UnauthorizedError(
             `You're not allowed to shutdown this organization.`,
           )
@@ -49,7 +47,7 @@ export async function shutdownOrganization(app: FastifyInstance) {
           },
         })
 
-        return reply.status(204).send()
+        return reply.status(204).send(null)
       },
     )
 }

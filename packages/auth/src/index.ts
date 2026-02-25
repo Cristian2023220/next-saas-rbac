@@ -4,8 +4,8 @@ import { z } from 'zod';
 
 import { User } from './models/user';
 import { permissions } from './permissions';
-import { projectSubject } from './subjects/project';
-import { userSubject } from './subjects/user';
+import { ProjectSubject, projectSubject } from './subjects/project';
+import { UserSubject, userSubject } from './subjects/user';
 import { organizationSubject } from './subjects/organization';
 import { inviteSubject } from './subjects/invite';
 import { bilingSubject } from './subjects/bilings';

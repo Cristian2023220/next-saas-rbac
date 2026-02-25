@@ -12,6 +12,8 @@ type PermissionsByRole = (
 export const permissions: Record<Role,PermissionsByRole> = {
     ADMIN(user, {can, cannot}) {
         can('manage', 'all')
+        can('manage', 'Billing')
+        can('get', 'Billing')
 
         cannot(['transfer_ownership', 'update'], 'Organization')
         can(['transfer_ownership', 'update'], 'Organization',
@@ -27,7 +29,11 @@ export const permissions: Record<Role,PermissionsByRole> = {
     },
     BILLING(__, {can}) {
         can('manage', 'Billing')
-
+        can('get', 'Billing')
     },
 
+    
+
 }
+
+

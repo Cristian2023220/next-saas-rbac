@@ -49,9 +49,10 @@ export async function getOrganizationBilling(app: FastifyInstance) {
         const { organization, membership } =
           await request.getUserMembership(slug)
 
-        const { cannot } = getUserPermissions(userId, membership.role)
+        const permissions = getUserPermissions(userId, membership.role)
 
-        if (cannot('get', 'Billing')) {
+        // Usamos a exclamação (!) para inverter o resultado do 'can' com total segurança
+        if (!permissions.can('get', 'Billing')) {
           throw new UnauthorizedError(
             `You're not allowed to get billing details from this organization.`,
           )
