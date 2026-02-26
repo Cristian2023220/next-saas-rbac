@@ -7,5 +7,5 @@ interface RevokeInviteRequest {
 }
 
 export async function revokeInvite({ org, inviteId }: RevokeInviteRequest) {
-  await api.delete(`organization/${org}/invites/${inviteId}`)
+  await api.delete(`organizations/${org}/invites/${inviteId}`)
 }

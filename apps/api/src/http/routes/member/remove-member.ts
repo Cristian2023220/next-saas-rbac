@@ -51,7 +51,7 @@ export async function removeMember(app: FastifyInstance) {
           },
         })
 
-        return reply.status(204).send()
+        return reply.status(204).send(null)
       },
     )
 }

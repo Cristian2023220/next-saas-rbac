@@ -7,5 +7,5 @@ interface RemoveMemberRequest {
 }
 
 export async function removeMember({ org, memberId }: RemoveMemberRequest) {
-  await api.delete(`organization/${org}/members/${memberId}`)
+  await api.delete(`organizations/${org}/members/${memberId}`)
 }

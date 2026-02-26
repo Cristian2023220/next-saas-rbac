@@ -1,47 +1,50 @@
 
+import { roleSchema } from '@saas/auth'
 import type { FastifyInstance } from 'fastify'
 import type { ZodTypeProvider } from 'fastify-type-provider-zod'
-import z from 'zod'
-
-import { UnauthorizedError } from '../_errors/unauthorized-error'
+import { z } from 'zod'
 import { auth } from '../../middlewares/auth'
 import { getUserPermissions } from '../../../utils/get-users-permissions'
+import { UnauthorizedError } from '../_errors/unauthorized-error'
 import { prisma } from '../../../lib/prisma'
-import { roleSchema } from '@saas/auth/src/roles'
 
 
-export async function getMembers(app: FastifyInstance) {
+
+export async function getInvites(app: FastifyInstance) {
   app
     .withTypeProvider<ZodTypeProvider>()
     .register(auth)
     .get(
-      '/organizations/:slug/members',
+      '/organizations/:slug/invites',
       {
         schema: {
-          tags: ['members'],
-          summary: 'Get all organization members',
+          tags: ['Invites'],
+          summary: 'Get all organization invites',
           security: [{ bearerAuth: [] }],
           params: z.object({
             slug: z.string(),
           }),
           response: {
             200: z.object({
-              members: z.array(
+              invites: z.array(
                 z.object({
                   id: z.string().uuid(),
-                  userId: z.string().uuid(),
-                  role: z.enum(['ADMIN', 'MEMBER', 'BILLING']),
-                  name: z.string().nullable(),
-                  email: z.string(),
-                  avatarUrl: z.string().url().nullable(),
+                  role: roleSchema,
+                  email: z.string().email(),
+                  createdAt: z.date(),
+                  author: z
+                    .object({
+                      id: z.string().uuid(),
+                      name: z.string().nullable(),
+                    })
+                    .nullable(),
                 }),
               ),
             }),
           },
         },
       },
-
-      async (request, reply) => {
+      async (request) => {
         const { slug } = request.params
         const userId = await request.getCurrentUserId()
         const { organization, membership } =
@@ -49,43 +52,34 @@ export async function getMembers(app: FastifyInstance) {
 
         const { cannot } = getUserPermissions(userId, membership.role)
 
-        if (cannot('get', 'User')) {
+        if (cannot('get', 'Invite')) {
           throw new UnauthorizedError(
-            `You're not allowed to see organization members.`,
+            `You're not allowed to get organization invites.`,
           )
         }
 
-        const members = await prisma.member.findMany({
-          select: {
-            id: true,
-            role: true,
-            user: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                avatarUrl: true,
-              },
-            },
-          },
+        const invites = await prisma.invite.findMany({
           where: {
             organizationId: organization.id,
           },
+          select: {
+            id: true,
+            email: true,
+            role: true,
+            createdAt: true,
+            author: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
           orderBy: {
-            role: 'asc',
+            createdAt: 'desc',
           },
         })
 
-        const membersWithRoles = members.map(
-          ({ user: { id: userId, ...user }, ...member }) => {
-            return {
-              ...user,
-              ...member,
-              userId,
-            }
-          },
-        )
-        return reply.send({ members: membersWithRoles })
+        return { invites }
       },
     )
 }

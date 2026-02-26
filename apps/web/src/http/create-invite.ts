@@ -16,7 +16,7 @@ export async function createInvite({
   email,
   role,
 }: CreateInviteRequest): Promise<CreateInviteResponse> {
-  await api.post(`organization/${org}/invites`, {
+  await api.post(`organizations/${org}/invites`, {
     json: {
       email,
       role,

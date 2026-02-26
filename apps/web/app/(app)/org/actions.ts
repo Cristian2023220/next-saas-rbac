@@ -1,4 +1,3 @@
-
 'use server'
 
 import { HTTPError } from 'ky'
@@ -6,122 +5,43 @@ import { revalidateTag } from 'next/cache'
 import { z } from 'zod'
 
 import { getCurrentOrg } from '@/auth/auth'
-import { CreateOrganization } from '@/http/create-organization'
-import { updateOrganization } from '@/http/update-organization'
+import { updateMember } from '@/http/update-member' // O caminho do seu arquivo da imagem
 
+// Crie o schema de validação para a role do membro
+const updateMemberSchema = z.object({
+  memberId: z.string().uuid({ message: 'ID de membro inválido.' }),
+  role: z.string(), // Você pode usar z.enum(['ADMIN', 'MEMBER']) se tiver roles fixas
+})
 
-const organizationSchema = z
-  .object({
-    name: z
-      .string()
-      .min(4, { message: 'Please, incluide at least 4 characters.' }),
-    domain: z
-      .string()
-      .nullable()
-      .refine(
-        (value) => {
-          if (value) {
-            const domainRegex = /^[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/
-
-            return domainRegex.test(value)
-          }
-
-          return true
-        },
-        {
-          message: 'Please, enter a valid domain.',
-        },
-      ),
-    shouldAttachUsersByDomain: z
-      .union([z.literal('on'), z.literal('off'), z.boolean()])
-      .transform((value) => value === true || value === 'on')
-      .default(false),
-  })
-  .refine(
-    (data) => {
-      if (data.shouldAttachUsersByDomain === true && !data.domain) {
-        return false
-      }
-
-      return true
-    },
-    {
-      message: 'Domain is required when auto-join is enabled.',
-      path: ['domain'],
-    },
-  )
-
-export type OrganizationSchema = z.infer<typeof organizationSchema>
-
-export async function createOrganizationAction(data: FormData) {
-  const result = organizationSchema.safeParse(Object.fromEntries(data))
-
-  if (!result.success) {
-    const errors = result.error.flatten().fieldErrors
-
-    return { success: false, message: null, errors }
-  }
-
-  const { name, domain, shouldAttachUsersByDomain } = result.data
-
-  try {
-    await CreateOrganization({
-      name,
-      domain,
-      shouldAttachUsersByDomain,
-    })
-
-    revalidateTag('organizations')
-  } catch (err) {
-    if (err instanceof HTTPError) {
-      const { message } = await err.response.json()
-
-      return { success: false, message, errors: null }
-    }
-
-    console.error(err)
-
-    return {
-      success: false,
-      message: 'Unexpected error, try again in a few minutes.',
-      errors: null,
-    }
-  }
-
-  return {
-    success: true,
-    message: 'Successfully saved the organization.',
-    errors: null,
-  }
-}
-
-export async function updateOrganizationAction(data: FormData) {
+export async function updateMemberAction(data: FormData) {
+  // Pega a organização atual (assim como você fez no updateOrganizationAction)
   const currentOrg = await getCurrentOrg()
 
-  const result = organizationSchema.safeParse(Object.fromEntries(data))
+  const result = updateMemberSchema.safeParse(Object.fromEntries(data))
 
   if (!result.success) {
     const errors = result.error.flatten().fieldErrors
-
     return { success: false, message: null, errors }
   }
 
-  const { name, domain, shouldAttachUsersByDomain } = result.data
+  const { memberId, role } = result.data
 
   try {
-    await updateOrganization({
+    await updateMember({
       org: currentOrg!,
-      name,
-      domain,
-      shouldAttachUsersByDomain,
+      memberId,
+      role: role as "ADMIN" | "MEMBER" | "BILLING",
     })
 
-    revalidateTag('organizations')
+    revalidateTag('members') 
   } catch (err) {
     if (err instanceof HTTPError) {
-      const { message } = await err.response.json()
-
-      return { success: false, message, errors: null }
+      try {
+          const { message } = await err.response.json()
+          return { success: false, message, errors: null }
+      } catch {
+          return { success: false, message: 'Recurso não encontrado no servidor (404).', errors: null }
+      }
     }
 
     console.error(err)
@@ -135,7 +55,7 @@ export async function updateOrganizationAction(data: FormData) {
 
   return {
     success: true,
-    message: 'Successfully saved the organization.',
+    message: 'Successfully updated the member role.',
     errors: null,
   }
 }

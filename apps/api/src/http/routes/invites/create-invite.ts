@@ -92,15 +92,21 @@ export async function createInvite(app: FastifyInstance) {
         }
 
         const invite = await prisma.invite.create({
-          data: {
-            organizationId: organization.id,
-            email,
-            role,
-            author: {
-              connect: { id: userId },
-            },
-          },
-        })
+  data: {
+    organization: { // <-- Use 'organization' e faça o connect
+      connect: {
+        id: organization.id,
+      }
+    },
+    email,
+    role,
+    author: {
+      connect: {
+        id: userId,
+      }
+    }
+  }
+})
 
         return reply.status(201).send({
           inviteId: invite.id,

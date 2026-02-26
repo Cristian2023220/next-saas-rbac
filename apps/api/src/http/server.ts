@@ -37,10 +37,11 @@ import { getInvite } from './routes/invites/get-invite';
 import { getInvites } from './routes/invites/get.invites';
 import { rejectInvite } from './routes/invites/reject-invite';
 import { acceptInvite } from './routes/invites/accept-invite';
-import { revokeInvite } from './routes/invites/revoke-invite';
 import { getPendingInvites } from './routes/invites/get-pending-invites';
 import { getOrganizationBilling } from './routes/biling/get-organization-billing';
 import { resetPassword } from './routes/auth/reset-password';
+import { revokeInvite } from './routes/invites/revoke-invite';
+
 
 
 
@@ -121,6 +122,7 @@ app.register(rejectInvite)
 app.register(acceptInvite)
 app.register(revokeInvite)
 app.register(getPendingInvites)
+
 
 // Route biling
 app.register(getOrganizationBilling)

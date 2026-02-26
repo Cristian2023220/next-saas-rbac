@@ -10,7 +10,7 @@ import { getCurrentOrg } from '@/auth/auth'
 import { createInvite } from '@/http/create-invite'
 import { removeMember } from '@/http/remove-member'
 import { updateMember } from '@/http/update-member'
-import { revokeInvite } from '@/http/evoke-invite'
+import { revokeInvite } from '@/http/revoke-invite'
 
 
 const inviteSchema = z.object({
