@@ -11,6 +11,8 @@ import { createInvite } from '@/http/create-invite'
 import { removeMember } from '@/http/remove-member'
 import { updateMember } from '@/http/update-member'
 import { revokeInvite } from '@/http/revoke-invite'
+import { api } from '@/http/api-client'
+import { transferOrganization } from '@/http/transfer-organization'
 
 
 const inviteSchema = z.object({
@@ -93,4 +95,30 @@ export async function revokeInviteAction(inviteId: string) {
   })
 
   revalidateTag(`${currentOrg}/invites`)
+}
+
+export async function transferOwnershipAction(transferToUserId: string) {
+  const currentOrg = await getCurrentOrg()
+
+  if (!currentOrg) {
+    return
+  }
+
+  try {
+    await transferOrganization({
+      org: currentOrg,
+      transferToUserId,
+    })
+    revalidateTag(`${currentOrg}`)
+    revalidateTag('organizations')
+    
+  } catch (error) {
+    if (error instanceof HTTPError) {
+
+      const errorBody = await error.response.json();
+      console.error("🔍 DETALHES DO ERRO 400:", errorBody);
+    } else {
+      console.error("Erro ao transferir organização:", error);
+    }
+  }
 }

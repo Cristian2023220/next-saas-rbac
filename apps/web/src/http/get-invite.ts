@@ -20,7 +20,11 @@ interface GetInviteResponse {
 }
 
 export async function getInvite(inviteId: string) {
-  const result = await api.get(`invites/${inviteId}`).json<GetInviteResponse>()
-
-  return result
+  try {
+    const result = await api.get(`invites/${inviteId}`).json<GetInviteResponse>()
+    return result
+  } catch (error) {
+    // Retorna null em vez de explodir a tela com erro
+    return null 
+  }
 }

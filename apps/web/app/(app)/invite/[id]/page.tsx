@@ -4,13 +4,16 @@ import { CheckCircle, LogIn, LogOut } from 'lucide-react'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { ReactNode } from 'react' // 1. Adicione a importação do ReactNode
+import { revalidateTag } from 'next/cache' // Adicionado para limpar o cache
+import { ReactNode } from 'react'
 
 import { auth, isAuthenticated } from '@/auth/auth'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { acceptInvite } from '@/http/accept-invite'
+
+// IMPORTANTE: Mudei para a função que arrumamos antes. Confirme se o caminho está correto!
+import { acceptInviteAction as acceptInvite } from '@/http/accept-invite' 
 import { getInvite } from '@/http/get-invite'
 
 dayjs.extend(relativeTime)
@@ -19,18 +22,26 @@ interface InvitePageProps {
   params: Promise<{ id: string }>
 }
 
-// 2. Adicione : Promise<ReactNode> aqui na declaração da função 👇
 export default async function InvitePage({ params }: InvitePageProps): Promise<ReactNode> {
+  // 1. PRIMEIRO extraímos o ID da URL
   const inviteId = (await params).id
 
-  const { invite } = await getInvite(inviteId)
+  // 2. AGORA fazemos a busca na API
+  const inviteResponse = await getInvite(inviteId)
+
+  // 3. Verificamos se o convite existe. Se não, manda pra home em silêncio
+  if (!inviteResponse) {
+    redirect('/')
+  }
+
+  // 4. Como passou do if, extraímos o invite com segurança
+  const { invite } = inviteResponse
   const isUserAuthenticated = await isAuthenticated()
 
   let currentUserEmail = null
 
   if (isUserAuthenticated) {
     const { user } = await auth()
-
     currentUserEmail = user.email
   }
 
@@ -46,11 +57,16 @@ export default async function InvitePage({ params }: InvitePageProps): Promise<R
     redirect(`/auth/sign-in?email=${invite.email}`)
   }
 
-  async function acceptInviteAction() {
+  async function acceptInviteSubmit() {
     'use server'
 
+    // 1. Chama a função que faz o POST pro backend
     await acceptInvite(inviteId)
+    
+    // 2. Limpa o cache para a organização aparecer no menu
+    revalidateTag('organizations')
 
+    // 3. Redireciona
     redirect('/')
   }
 
@@ -90,7 +106,7 @@ export default async function InvitePage({ params }: InvitePageProps): Promise<R
         )}
 
         {userIsAuthenticatedWithSameEmailFromInvite && (
-          <form action={acceptInviteAction}>
+          <form action={acceptInviteSubmit}>
             <Button type="submit" variant="secondary" className="w-full">
               <CheckCircle className="mr-2 size-4" />
               Join {invite.organization.name}

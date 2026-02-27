@@ -2,6 +2,7 @@ import type React from 'react' // 👈 Adicione isso no topo para garantir o nam
 import { organizationSchema } from '@saas/auth'
 import { ArrowLeftRight, Crown, UserMinus } from 'lucide-react'
 import Image from 'next/image'
+import { transferOwnershipAction } from './actions'
 
 import { ability, getCurrentOrg } from '@/auth/auth'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -74,14 +75,13 @@ export async function MemberList(): Promise<React.JSX.Element> {
                   </TableCell>
                   <TableCell className="py-2.5">
                     <div className="flex items-center justify-end gap-2">
-                      {permissions?.can(
-                        'transfer_ownership',
-                        authOrganization,
-                      ) && (
-                        <Button size="sm" variant="ghost">
-                          <ArrowLeftRight className="mr-2 size-4" />
-                          Transfer ownership
-                        </Button>
+                      {permissions?.can('transfer_ownership', authOrganization) && (
+           <form action={transferOwnershipAction.bind(null, member.userId)}>
+             <Button type="submit" size="sm" variant="ghost">
+             <ArrowLeftRight className="mr-2 size-4" />
+              Transfer ownership
+            </Button>
+           </form>
                       )}
 
                       <UpdateMemberRoleSelect
