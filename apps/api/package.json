@@ -3,7 +3,7 @@
     "scripts": {
         "dev": "pnpm env:load tsx watch src/http/server.ts",
         "build": "tsup src/http/server.ts",
-        "start": "node dist/http/server.js",
+        "start": "node dist/server.js",
         "// --- SCRIPTS DO BANCO DE DADOS ---": "",
         "db:migrate": "pnpm env:load prisma migrate dev",
         "db:studio": "pnpm env:load prisma studio",
