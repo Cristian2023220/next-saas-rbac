@@ -1,5 +1,6 @@
-import { Header } from '@/components/header'
+import Header from '@/components/header'
 import { Tabs } from '@/components/tabs'
+import type { JSX } from 'react' 
 
 export default async function OrgLayout({
   children,
@@ -7,7 +8,7 @@ export default async function OrgLayout({
 }: Readonly<{
   children: React.ReactNode
   params: Promise<{ slug: string }>
-}>) {
+}>) : Promise<JSX.Element> {
   const { slug } = await params
 
   return (

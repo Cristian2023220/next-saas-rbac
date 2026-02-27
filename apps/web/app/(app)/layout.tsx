@@ -1,16 +1,19 @@
-
 import { redirect } from 'next/navigation'
+import React from 'react'
+import type { JSX } from 'react' 
 
 import { isAuthenticated } from '@/auth/auth'
 
-export default async function AppLayout({
+export default async function OrgLayout({
   children,
   sheet,
 }: Readonly<{
   children: React.ReactNode
   sheet: React.ReactNode
-}>) {
-  if (await !isAuthenticated()) {
+}>): Promise<JSX.Element> {
+  const isAuth = await isAuthenticated()
+  
+  if (!isAuth) {
     redirect('/auth/sign-in')
   }
 

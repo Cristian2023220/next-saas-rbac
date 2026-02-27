@@ -1,6 +1,7 @@
-import { Header } from "@/components/header"
+import Header from '@/components/header'
+import type { JSX } from 'react'
 
-export default async function Home() {
+export default async function Home(): Promise<JSX.Element> {
   return (
     <div className="space-y-4 py-4">
       <Header />
