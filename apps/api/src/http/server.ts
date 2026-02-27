@@ -131,6 +131,10 @@ app.register(getOrganizationBilling)
 
 
 
-app.listen ({port: env.SERVER_PORT}).then(() => {
-    console.log('HTTP server running on http://localhost:3333/docs');
+app.listen({
+  // Tenta pegar a porta do Render primeiro, se não achar, usa a sua
+  port: process.env.PORT ? Number(process.env.PORT) : env.SERVER_PORT,
+  host: '0.0.0.0', // 👈 A chave mágica para a nuvem!
+}).then(() => {
+  console.log('HTTP server running!');
 });
