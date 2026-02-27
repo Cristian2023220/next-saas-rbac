@@ -1,11 +1,10 @@
 'use client'
 
-import { AlertTriangle, Loader2 } from 'lucide-react'
-import Image from 'next/image'
+// ✅ 1. Adicionamos o ícone do Github aqui
+import { AlertTriangle, Loader2, Github } from 'lucide-react' 
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-import githubIcon from '@/assets/github-icon.svg'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -92,8 +91,9 @@ export function SignInForm(): ReactNode {
       <Separator />
 
       <form action={signInWithGithub}>
+        {/* ✅ 2. Trocamos o Image pelo ícone nativo do Lucide */}
         <Button type="submit" className="w-full" variant="outline">
-          <Image src={githubIcon} alt="" className="mr-2 size-4 dark:invert" />
+          <Github className="mr-2 size-4" />
           Sign in with GitHub
         </Button>
       </form>
