@@ -12,11 +12,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { useFormState } from '@/hooks/use-form-state'
+import { ReactNode } from 'react'
 
 import { signInWithGithub } from '../actions'
 import { signInWithEmailAndPassword } from '@/auth/actions'
 
-export function SignInForm() {
+export function SignInForm(): ReactNode {
   const router = useRouter()
   const searchParams = useSearchParams()
   const prefilledEmail = searchParams?.get('email') ?? ''

@@ -12,8 +12,9 @@ import { signUpAction } from "./actions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { signInWithGithub } from "../actions";
+import { ReactNode } from "react";
 
-export function SignUpForm() {
+export function SignUpForm(): ReactNode {
   const router = useRouter(); 
 
   const [{ success, message, errors }, handleSubmit, isPending] = useFormState(

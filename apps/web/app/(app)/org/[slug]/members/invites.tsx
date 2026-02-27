@@ -1,13 +1,13 @@
+import { ReactNode } from 'react'
 import { ability, getCurrentOrg } from '@/auth/auth'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
-
 
 import { CreateInviteForm } from './create-invite-form'
 import { RevokeInviteButton } from './revoke-invite-button'
 import { getInvites } from '@/http/get-invites'
 
-export async function Invites() {
+export async function Invites(): Promise<ReactNode> {
   const currentOrg = await getCurrentOrg()
   const permissions = await ability()
 

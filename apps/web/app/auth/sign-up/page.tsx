@@ -5,9 +5,10 @@ import { Separator } from "@radix-ui/react-separator";
 import Link from "next/link";
 import Image from "next/image"
 import { SignUpForm } from "./sign-up-form";
+import { ReactNode } from "react";
 
 
-export default function SignInPage() {
+export default function SignInPage(): ReactNode {
   return (
     <SignUpForm/>
   );
